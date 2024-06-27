@@ -1,5 +1,5 @@
 # Тестовое задание “Quiz”
-[Деплой]([https://n01zy-d.github.io/Test-HTML-CSS/](https://n01zy-d.github.io/Test-JS-HTML-CSS/))
+[Деплой](https://n01zy-d.github.io/Test-JS-HTML-CSS/)
 
 # Техническое задание: 
 Необходимо реализовать приложение, содержащее вопросы из разных сфер деятельности.
