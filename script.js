@@ -190,19 +190,32 @@ document.addEventListener('DOMContentLoaded', (event) => {
     retryButton.addEventListener('click', retryQuiz);
     showAnswerButton.addEventListener('click', showAnswer);
 
-    toggleThemeButton.addEventListener('click', function(){
-        if(body.classList.contains('light-theme')){
-            body.classList.remove('light-theme');
-            body.classList.add('dark-theme');
-            container.classList.remove('light-theme');
-            container.classList.add('dark-theme');
+    loadTheme();
+
+    toggleThemeButton.addEventListener('click', function() {
+        // Переключение между светлой и тёмной темой
+        if (body.classList.contains('light-theme')) {
+            setTheme('dark-theme');
         } else {
-            body.classList.remove('dark-theme');
-            body.classList.add('light-theme');
-            container.classList.remove('dark-theme');
-            container.classList.add('light-theme');
+            setTheme('light-theme');
         }
     });
+
+    function setTheme(theme) {
+        // Установка темы на body и .container
+        body.className = theme;
+        container.className = `container ${theme}`;
+        // Сохранение темы в локальное хранилище
+        localStorage.setItem('theme', theme);
+    }
+
+    function loadTheme() {
+        // Загрузка текущей темы из локального хранилища
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        }
+    }
 
     displayQuestion();
 });
