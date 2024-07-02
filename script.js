@@ -1,57 +1,50 @@
-document.addEventListener('DOMContentLoaded', (event) => {
-    const quizContainer = document.getElementById('quiz');
-    const resultContainer = document.getElementById('result');
-    const submitButton = document.getElementById('submit');
-    const retryButton = document.getElementById('retry');
-    const showAnswerButton = document.getElementById('showAnswer');
-    const progressBar = document.getElementById('progressBar');
-    const toggleThemeButton = document.getElementById('toggleThemeButton');
-    const body = document.body;
-    const container = document.querySelector('.container');
+document.addEventListener('DOMContentLoaded', () => {
+    // Получение элементов из DOM
+    const elements = {
+        quizContainer: document.getElementById('quiz'),
+        resultContainer: document.getElementById('result'),
+        submitButton: document.getElementById('submit'),
+        retryButton: document.getElementById('retry'),
+        showAnswerButton: document.getElementById('showAnswer'),
+        toggleThemeButton: document.getElementById('toggleThemeButton'),
+        progressBar: document.getElementById('progressBar')
+    };
 
-    let currentQuestion = 0;
-    let score = 0;
-    let selectedAnswers = [];
-    let incorrectAnswers = [];
-    let timerInterval;
+    let state = {
+        currentQuestion: 0,
+        score: 0,
+        selectedAnswers: [],
+        incorrectAnswers: [],
+        timer: null
+    };
+
+    const timeLimit = 15; // Время на каждый вопрос в секундах
 
     const quizData = [
-        {
-            question: 'How many planets are in the solar system?',
-            options: ['8', '9', '10'],
-            answer: '8',
-        },
-        {
-            question: 'What is the freezing point of water?',
-            options: ['0', '-5', '-6'],
-            answer: '0',
-        },
-        {
-            question: 'What is the longest river in the world?',
-            options: ['Nile', 'Amazon', 'Yangtze'],
-            answer: 'Nile',
-        },
-        {
-            question: 'How many chromosomes are in the human genome?',
-            options: ['42', '44', '46'],
-            answer: '46',
-        },
-        {
-            question: 'Which of these characters are friends with Harry Potter?',
-            options: ['Ron Weasley', 'Draco Malfoy', 'Hermione Granger'],
-            answer: ['Ron Weasley', 'Hermione Granger'],
-        },
-        {
-            question: 'What is the capital of Canada?',
-            options: ['Toronto', 'Ottawa', 'Vancouver'],
-            answer: 'Ottawa',
-        },
-        {
-            question: 'What is the Jewish New Year called?',
-            options: ['Hanukkah', 'Yom Kippur', 'Rosh Hashanah'],
-            answer: 'Rosh Hashanah',
-        },
+        { question: 'How many planets are in the solar system?', options: ['8', '9', '10'], answer: ['8'] },
+        { question: 'What is the freezing point of water?', options: ['0', '-5', '-6'], answer: ['0'] },
+        { question: 'What is the longest river in the world?', options: ['Nile', 'Amazon', 'Yangtze'], answer: ['Nile'] },
+        { question: 'How many chromosomes are in the human genome?', options: ['42', '44', '46'], answer: ['46'] },
+        { question: 'Which of these characters are friends with Harry Potter?', options: ['Ron Weasley', 'Draco Malfoy', 'Hermione Granger'], answer: ['Ron Weasley', 'Hermione Granger'] },
+        { question: 'What is the capital of Canada?', options: ['Toronto', 'Ottawa', 'Vancouver'], answer: ['Ottawa'] },
+        { question: 'What is the Jewish New Year called?', options: ['Yom Kippur', 'Kwanzaa', 'Rosh Hashanah'], answer: ['Rosh Hashanah'] }
     ];
+
+    shuffleArray(quizData);
+
+    // Загрузка текущей темы при загрузке страницы
+    loadTheme();
+
+    // Переключение темы по нажатию кнопки
+    elements.toggleThemeButton.addEventListener('click', toggleTheme);
+
+    // Начальная загрузка вопроса
+    displayQuestion();
+
+    // Обработчики событий для кнопок
+    elements.submitButton.addEventListener('click', checkAnswer);
+    elements.retryButton.addEventListener('click', retryQuiz);
+    elements.showAnswerButton.addEventListener('click', showAnswer);
 
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -61,7 +54,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     function displayQuestion() {
-        const questionData = quizData[currentQuestion];
+        const questionData = quizData[state.currentQuestion];
 
         const questionElement = document.createElement('div');
         questionElement.className = 'question';
@@ -73,149 +66,144 @@ document.addEventListener('DOMContentLoaded', (event) => {
         const shuffledOptions = [...questionData.options];
         shuffleArray(shuffledOptions);
 
-        for (let i = 0; i < shuffledOptions.length; i++) {
+        shuffledOptions.forEach(option => {
             const optionButton = document.createElement('button');
-            optionButton.className = 'option button';
-            optionButton.innerHTML = shuffledOptions[i];
-            optionButton.addEventListener('click', function() {
-                this.classList.toggle('selected');
-                if (selectedAnswers.includes(shuffledOptions[i])) {
-                    selectedAnswers = selectedAnswers.filter(answer => answer !== shuffledOptions[i]);
-                } else {
-                    selectedAnswers.push(shuffledOptions[i]);
-                }
-            });
-
+            optionButton.className = 'button';
+            optionButton.innerText = option;
+            optionButton.addEventListener('click', () => selectAnswer(optionButton, option));
             optionsElement.appendChild(optionButton);
-        }
+        });
 
-        quizContainer.innerHTML = '';
-        quizContainer.appendChild(questionElement);
-        quizContainer.appendChild(optionsElement);
+        elements.quizContainer.innerHTML = '';
+        elements.quizContainer.appendChild(questionElement);
+        elements.quizContainer.appendChild(optionsElement);
 
-        startTimer();
+        // Сброс таймера
+        resetTimer();
     }
 
-    function startTimer() {
-        let timeLeft = 15;
-        progressBar.style.width = '100%';
-
-        clearInterval(timerInterval); // Clear the previous interval if any
-
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            progressBar.style.width = `${(timeLeft / 15) * 100}%`;
-
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                checkAnswer();
-            }
-        }, 1000);
+    function selectAnswer(button, option) {
+        if (state.selectedAnswers.includes(option)) {
+            state.selectedAnswers = state.selectedAnswers.filter(answer => answer !== option);
+            button.classList.remove('selected');
+        } else {
+            state.selectedAnswers.push(option);
+            button.classList.add('selected');
+        }
     }
 
     function checkAnswer() {
-        clearInterval(timerInterval);
-
-        const correctAnswers = Array.isArray(quizData[currentQuestion].answer)
-            ? quizData[currentQuestion].answer
-            : [quizData[currentQuestion].answer];
-
-        if (correctAnswers.sort().join(',') === selectedAnswers.sort().join(',')) {
-            score++;
+        const correctAnswers = quizData[state.currentQuestion].answer;
+        if (arraysEqual(state.selectedAnswers, correctAnswers)) {
+            state.score++;
         } else {
-            incorrectAnswers.push({
-                question: quizData[currentQuestion].question,
-                incorrectAnswer: selectedAnswers.join(', '),
-                correctAnswer: correctAnswers.join(', '),
+            state.incorrectAnswers.push({
+                question: quizData[state.currentQuestion].question,
+                incorrectAnswer: state.selectedAnswers,
+                correctAnswer: correctAnswers
             });
         }
-
-        currentQuestion++;
-        selectedAnswers = [];
-        if (currentQuestion < quizData.length) {
+        state.currentQuestion++;
+        state.selectedAnswers = [];
+        if (state.currentQuestion < quizData.length) {
             displayQuestion();
         } else {
             displayResult();
         }
     }
 
+    function arraysEqual(arr1, arr2) {
+        if (arr1.length !== arr2.length) return false;
+        const sortedArr1 = arr1.slice().sort();
+        const sortedArr2 = arr2.slice().sort();
+        for (let i = 0; i < sortedArr1.length; i++) {
+            if (sortedArr1[i] !== sortedArr2[i]) return false;
+        }
+        return true;
+    }
+
     function displayResult() {
-        quizContainer.style.display = 'none';
-        submitButton.style.display = 'none';
-        retryButton.style.display = 'inline-block';
-        showAnswerButton.style.display = 'inline-block';
-        resultContainer.innerHTML = `You scored ${score} out of ${quizData.length}!`;
+        elements.quizContainer.style.display = 'none';
+        elements.submitButton.style.display = 'none';
+        elements.retryButton.style.display = 'inline-block';
+        elements.showAnswerButton.style.display = 'inline-block';
+        elements.resultContainer.innerHTML = `You scored ${state.score} out of ${quizData.length}!`;
+        clearInterval(state.timer); // Остановка таймера
     }
 
     function retryQuiz() {
-        clearInterval(timerInterval); // Clear the previous interval if any
-        currentQuestion = 0;
-        score = 0;
-        selectedAnswers = [];
-        incorrectAnswers = [];
-        quizContainer.style.display = 'block';
-        submitButton.style.display = 'inline-block';
-        retryButton.style.display = 'none';
-        showAnswerButton.style.display = 'none';
-        resultContainer.innerHTML = '';
+        state.currentQuestion = 0;
+        state.score = 0;
+        state.selectedAnswers = [];
+        state.incorrectAnswers = [];
+        elements.quizContainer.style.display = 'block';
+        elements.submitButton.style.display = 'inline-block';
+        elements.retryButton.style.display = 'none';
+        elements.showAnswerButton.style.display = 'none';
+        elements.resultContainer.innerHTML = '';
         displayQuestion();
     }
 
     function showAnswer() {
-        clearInterval(timerInterval); // Clear the previous interval if any
-        quizContainer.style.display = 'none';
-        submitButton.style.display = 'none';
-        retryButton.style.display = 'inline-block';
-        showAnswerButton.style.display = 'none';
+        elements.quizContainer.style.display = 'none';
+        elements.submitButton.style.display = 'none';
+        elements.retryButton.style.display = 'inline-block';
+        elements.showAnswerButton.style.display = 'none';
 
         let incorrectAnswersHtml = '';
-        for (let i = 0; i < incorrectAnswers.length; i++) {
+        state.incorrectAnswers.forEach(item => {
             incorrectAnswersHtml += `
-            <p>
-                <strong>Question:</strong> ${incorrectAnswers[i].question}<br>
-                <strong>Your Answer:</strong> ${incorrectAnswers[i].incorrectAnswer}<br>
-                <strong>Correct Answer:</strong> ${incorrectAnswers[i].correctAnswer}
-            </p>
+                <p>
+                    <strong>Question:</strong> ${item.question}<br>
+                    <strong>Your Answer:</strong> ${item.incorrectAnswer.join(', ')}<br>
+                    <strong>Correct Answer:</strong> ${item.correctAnswer.join(', ')}
+                </p>
             `;
-        }
+        });
 
-        resultContainer.innerHTML = `
-            <p>You scored ${score} out of ${quizData.length}!</p>
+        elements.resultContainer.innerHTML = `
+            <p>You scored ${state.score} out of ${quizData.length}!</p>
             <p>Incorrect Answers:</p>
             ${incorrectAnswersHtml}
         `;
+        clearInterval(state.timer); // Остановка таймера
     }
 
-    submitButton.addEventListener('click', checkAnswer);
-    retryButton.addEventListener('click', retryQuiz);
-    showAnswerButton.addEventListener('click', showAnswer);
+    function resetTimer() {
+        clearInterval(state.timer);
+        let timeRemaining = timeLimit;
+        elements.progressBar.style.width = '100%';
 
-    loadTheme();
+        state.timer = setInterval(() => {
+            timeRemaining--;
+            const progressWidth = (timeRemaining / timeLimit) * 100;
+            elements.progressBar.style.width = `${progressWidth}%`;
 
-    toggleThemeButton.addEventListener('click', function() {
-        // Переключение между светлой и тёмной темой
-        if (body.classList.contains('light-theme')) {
+            if (timeRemaining <= 0) {
+                clearInterval(state.timer);
+                checkAnswer();
+            }
+        }, 1000);
+    }
+
+    function toggleTheme() {
+        if (document.body.classList.contains('light-theme')) {
             setTheme('dark-theme');
         } else {
             setTheme('light-theme');
         }
-    });
+    }
 
     function setTheme(theme) {
-        // Установка темы на body и .container
-        body.className = theme;
-        container.className = `container ${theme}`;
-        // Сохранение темы в локальное хранилище
+        document.body.className = theme;
+        document.querySelector('.container').className = `container ${theme}`;
         localStorage.setItem('theme', theme);
     }
 
     function loadTheme() {
-        // Загрузка текущей темы из локального хранилища
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             setTheme(savedTheme);
         }
     }
-
-    displayQuestion();
 });

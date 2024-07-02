@@ -1,25 +1,42 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+:root{
+  --font-1: 'Poppins', sans-serif;
+
+  --color-white: #fff;
+
+  --background-light: #b9b3a9;
+
+  --background-dark: #2c3e50;
+
+  --button-color: #428bca;
+  --button-hover: #3071a9;
+  --button-alternate: #f0ad4e;
+
+  --progress-bar: #f3f3f3;
+
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--font-1);
   display: flex;
   justify-content: center;
 }
 
 .light-theme{
-  background: #b9b3a9;
+  background: var(--background-light);
 }
 
 .dark-theme{
-  background-color: #2c3e50;
+  background-color: var(--background-dark);
 }
 
 .container {
   width: 450px;
   padding: 20px;
   margin-top: 80px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-white);
+  box-shadow: var(--shadow);
   border-radius: 20px;
 }
 
@@ -55,8 +72,8 @@ h1 {
   display: inline-block;
   width: 33%;
   padding: 10px 20px;
-  background-color: #428bca;
-  color: #fff;
+  background-color: var(--button-color);
+  color: var(--color-white);
   border: none;
   cursor: pointer;
   font-size: 16px;
@@ -66,7 +83,7 @@ h1 {
 }
 
 .button:hover {
-  background-color: #3071a9;
+  background-color: var(--button-hover);
 }
 
 .result {
@@ -79,13 +96,13 @@ h1 {
 }
 
 .selected {
-    background-color: #f0ad4e !important;
-    color: #fff;
+    background-color: var(--button-alternate) !important;
+    color: var(--color-white);
 }
 
 #progressContainer {
     width: 100%;
-    background-color: #f3f3f3;
+    background-color: var(--progress-bar);
     border-radius: 5px;
     overflow: hidden;
     margin: 10px 0;
@@ -94,7 +111,7 @@ h1 {
 
 #progressBar {
     height: 100%;
-    background-color: #f0ad4e;
+    background-color: var(--button-alternate);
     width: 100%;
     transition: width 1s linear;
 }
@@ -104,8 +121,8 @@ h1 {
   position: absolute;
   right: 5px;
   padding: 10px 20px;
-  background-color: #428bca;
-  color: #fff;
+  background-color: var(--button-color);
+  color: var(--color-white);
   border: none;
   cursor: pointer;
   font-size: 16px;
