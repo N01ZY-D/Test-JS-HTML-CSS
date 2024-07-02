@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
-:root{
+:root {
   --font-1: 'Poppins', sans-serif;
 
   --color-white: #fff;
@@ -7,6 +7,7 @@
   --background-light: #b9b3a9;
 
   --background-dark: #2c3e50;
+  --background-dark-50: #335a81;
 
   --button-color: #428bca;
   --button-hover: #3071a9;
@@ -23,16 +24,23 @@ body {
   justify-content: center;
 }
 
-.light-theme{
+.light-theme {
   background: var(--background-light);
 }
 
-.dark-theme{
+.dark-theme {
   background-color: var(--background-dark);
 }
 
+.dark-theme .container {
+  background-color: var(--background-dark-50);
+  color: var(--color-white);
+}
+
+
 .container {
-  width: 450px;
+  max-width: 375px;
+  width: 100%;
   padding: 20px;
   margin-top: 80px;
   background-color: var(--color-white);
@@ -53,6 +61,7 @@ h1 {
 .options {
   margin-bottom: 10px;
   display: flex;
+  gap: 10px;
   justify-content: center;
 }
 
@@ -61,10 +70,11 @@ h1 {
   margin-bottom: 5px;
 }
 
-.buttons{
+.buttons {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    gap: 10px;
     margin-top: 10px;
 }
 
@@ -79,7 +89,6 @@ h1 {
   font-size: 16px;
   border-radius: 4px;
   transition: background-color 0.1s;
-  margin-right: 10px;
 }
 
 .button:hover {
@@ -91,7 +100,7 @@ h1 {
   font-weight: bold;
 }
 
-.hide{
+.hide {
   display: none;
 }
 
@@ -116,7 +125,7 @@ h1 {
     transition: width 1s linear;
 }
 
-.toggleThemeButton{
+.toggleThemeButton {
   display: block;
   position: absolute;
   right: 5px;
